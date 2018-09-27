@@ -15,19 +15,17 @@ use Magento\TestFramework\TestCase\GraphQlAbstract;
  */
 class RevokeCustomerTokenTest extends GraphQlAbstract
 {
-
-
-
-    public function testRevokeCustomerTokenForLoggedCustomers()
+    /**
+     * Verify customers with valid credentials
+     * @magentoApiDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testRevokeCustomerTokenValidCredentials()
     {
-
-
         $query = <<<QUERY
             mutation {
                 revokeCustomerToken
             }
-QUERY
-        ;
+QUERY;
 
         $userName = 'customer@example.com';
         $password = 'password';
@@ -37,24 +35,25 @@ QUERY
         $customerToken = $customerTokenService->createCustomerAccessToken($userName, $password);
 
         $headerMap = ['Authorization' => 'Bearer ' . $customerToken];
-
         $response = $this->graphQlQuery($query, [], '', $headerMap);
-
-        self::assertTrue($response);
+        $this->assertTrue($response['revokeCustomerToken']);
     }
 
-
+    /**
+     * Verify guest customers
+     */
     public function testRevokeCustomerTokenForGuestCustomer()
     {
-        $query = <<<MUTATION
+        $query = <<<QUERY
             mutation {
                 revokeCustomerToken
             }
-MUTATION;
-
+QUERY;
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'GraphQL response contains errors: Current customer' . ' ' .
+            'does not have access to the resource "customer"'
+        );
         $response = $this->graphQlQuery($query, [], '');
-        $this->expectException($response);
     }
-
-
 }

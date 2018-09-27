@@ -16,7 +16,9 @@ use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Integration\Api\CustomerTokenServiceInterface;
 
-
+/**
+ * Customers Revoke Token resolver, used for GraphQL request processing.
+ */
 class RevokeCustomerToken implements ResolverInterface
 {
     /**
@@ -43,22 +45,14 @@ class RevokeCustomerToken implements ResolverInterface
         UserContextInterface $userContext,
         CustomerTokenServiceInterface $customerTokenService,
         ValueFactory $valueFactory
-    )
-    {
+    ) {
         $this->userContext = $userContext;
         $this->customerTokenService = $customerTokenService;
         $this->valueFactory = $valueFactory;
     }
 
-
     /**
-     * @param Field $field
-     * @param $context
-     * @param ResolveInfo $info
-     * @param array|null $value
-     * @param array|null $args
-     * @return Value
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @inheritdoc
      */
     public function resolve(
         Field $field,
@@ -66,8 +60,7 @@ class RevokeCustomerToken implements ResolverInterface
         ResolveInfo $info,
         array $value = null,
         array $args = null
-    ): Value
-    {
+    ): Value {
         if ((!$context->getUserId()) || $context->getUserType() == UserContextInterface::USER_TYPE_GUEST) {
             throw new GraphQlAuthorizationException(
                 __(
